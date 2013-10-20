@@ -1,0 +1,37 @@
+<package>
+  <name>youbot_driver_ros_interface</name>
+  <description>ROS wrapper for the youBot driver</description>
+  <author>Sebastian Blumenthal</author>
+  <maintainer email="x@x.de">x</maintainer>
+  <license>LGPL, BSD</license>
+  <version>0.1.0</version>
+  <url>http://ros.org/wiki/youbot_oodl</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>brics_actuator</build_depend>
+  <build_depend>youbot_driver</build_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>trajecty_msgs</build_depend>
+  <build_depend>youbot_driver</build_depend>
+  <build_depend>control_msgs</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>diagnostic_msgs</build_depend>
+  <build_depend>pr2_msgs</build_depend>
+
+  <run_depend>pr2_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+</package>
+
+
+
