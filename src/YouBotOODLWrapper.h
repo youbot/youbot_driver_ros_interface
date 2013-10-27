@@ -65,8 +65,8 @@
 
 /* OODL includes */
 #include "YouBotConfiguration.h"
-#include "youbot_driver/youbot/JointTrajectoryController.hpp"
-#include "youbot_driver/youbot/DataTrace.hpp"
+#include <youbot/JointTrajectoryController.hpp>
+#include <youbot/DataTrace.hpp>
 
 //#include <control_msgs/FollowJointTrajectoryAction.h>
 //#include <actionlib/server/simple_action_server.h>
