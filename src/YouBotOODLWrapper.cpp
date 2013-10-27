@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#include "YouBotOODLWrapper.h"
-#include "joint_state_observer_oodl.h"
+#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
+#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
 
 #include <youbot_trajectory_action_server/joint_trajectory_action.h>
 #include <sstream>

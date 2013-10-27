@@ -37,7 +37,7 @@
  *
  ******************************************************************************/
 
-#include "YouBotOODLWrapper.h"
+#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
 
 int main(int argc, char **argv)
 {

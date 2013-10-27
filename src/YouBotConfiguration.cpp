@@ -37,7 +37,7 @@
  *
  ******************************************************************************/
 
-#include "YouBotConfiguration.h"
+#include "youbot_driver_ros_interface/YouBotConfiguration.h"
 
 namespace youBot
 {
