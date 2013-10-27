@@ -55,7 +55,7 @@
 #include "diagnostic_msgs/DiagnosticStatus.h"
 #include <diagnostic_msgs/DiagnosticArray.h>
 
-#include "youbot_driver_ros_interface/PowerBoardState.h"
+#include <pr2_msgs/PowerBoardState.h>
 
 #include "trajectory_msgs/JointTrajectory.h"
 #include "sensor_msgs/JointState.h"
@@ -271,7 +271,7 @@ private:
     ros::Time lastDiagnosticPublishTime;
 
     ros::Publisher dashboardMessagePublisher;
-    youbot_driver_ros_interface::PowerBoardState platformStateMessage;
+    pr2_msgs::PowerBoardState platformStateMessage;
 
     ros::Publisher diagnosticArrayPublisher;
     diagnostic_msgs::DiagnosticArray diagnosticArrayMessage;
