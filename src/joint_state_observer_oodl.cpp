@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#include "joint_state_observer_oodl.h"
-#include "YouBotOODLWrapper.h"
+#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
+#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
 
 namespace youBot
 {

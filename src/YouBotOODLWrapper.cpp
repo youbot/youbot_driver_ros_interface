@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#include "YouBotOODLWrapper.h"
-#include "joint_state_observer_oodl.h"
+#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
+#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
 
 #include <youbot_trajectory_action_server/joint_trajectory_action.h>
 #include <sstream>
@@ -69,7 +69,7 @@ node(n)
     gripperCycleCounter = 0;
     diagnosticNameArms = "platform_Arms";
     diagnosticNameBase = "platform_Base";
-    dashboardMessagePublisher = n.advertise<youbot_driver_ros_interface::PowerBoardState>("/dashboard/platform_state", 1);
+    dashboardMessagePublisher = n.advertise<pr2_msgs::PowerBoardState>("/dashboard/platform_state", 1);
     diagnosticArrayPublisher = n.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 1);
 }
 
@@ -1156,18 +1156,18 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
     platformStateMessage.header.stamp = ros::Time::now();
 
     if (youBotConfiguration.hasBase && areBaseMotorsSwitchedOn)
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_ENABLED;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_ENABLED;
     else if (youBotConfiguration.hasBase && !areBaseMotorsSwitchedOn)
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_STANDBY;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_STANDBY;
     else
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_DISABLED;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_DISABLED;
 
     if (youBotConfiguration.hasArms && areArmMotorsSwitchedOn)
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_ENABLED;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_ENABLED;
     else if (youBotConfiguration.hasArms && !areArmMotorsSwitchedOn)
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_STANDBY;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_STANDBY;
     else
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_DISABLED;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_DISABLED;
 
 
     // publish established messages
