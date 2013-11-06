@@ -1125,6 +1125,7 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
 
     lastDiagnosticPublishTime = ros::Time::now();
 
+    platformStateMessage.header.stamp = ros::Time::now();
     diagnosticArrayMessage.header.stamp = ros::Time::now();
     diagnosticArrayMessage.status.clear();
 
@@ -1138,7 +1139,6 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
       diagnosticStatusMessage.message = "base is not connected or switched off";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
     }
-
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);
 
     // arm status
@@ -1150,13 +1150,25 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
       diagnosticStatusMessage.message = "arm is not connected or switched off";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
     }
-
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);
 
 
-    // dashboard message
-    platformStateMessage.header.stamp = ros::Time::now();
+    // EtherCAT status
+    diagnosticStatusMessage.name = "platform_EtherCAT";
+    if (youbot::EthercatMaster::getInstance().isEtherCATConnectionEstablished()) {
+      diagnosticStatusMessage.message = "EtherCAT connnection is established";
+      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
+      platformStateMessage.run_stop = false;
+    }
+    else {
+      diagnosticStatusMessage.message = "EtherCAT connnection lost";
+      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+      platformStateMessage.run_stop = true;
+    }
+    diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);        
 
+
+    // dashboard message
     if (youBotConfiguration.hasBase && areBaseMotorsSwitchedOn)
       platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_ENABLED;
     else if (youBotConfiguration.hasBase && !areBaseMotorsSwitchedOn)
