@@ -276,7 +276,7 @@ private:
     ros::Publisher diagnosticArrayPublisher;
     diagnostic_msgs::DiagnosticArray diagnosticArrayMessage;
     diagnostic_msgs::DiagnosticStatus diagnosticStatusMessage;
-    std::string diagnosticNameArms;
+    std::string diagnosticNameArm;
     std::string diagnosticNameBase;
 
     bool areBaseMotorsSwitchedOn;

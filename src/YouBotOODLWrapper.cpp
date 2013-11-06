@@ -67,7 +67,7 @@ node(n)
     //n.param("trajectoryVelocityGain", trajectoryVelocityGain, 0.0);
     //n.param("trajectoryPositionGain", trajectoryPositionGain, 5.0);
     gripperCycleCounter = 0;
-    diagnosticNameArms = "platform_Arms";
+    diagnosticNameArm = "platform_Arm";
     diagnosticNameBase = "platform_Base";
     dashboardMessagePublisher = n.advertise<pr2_msgs::PowerBoardState>("/dashboard/platform_state", 1);
     diagnosticArrayPublisher = n.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 1);
@@ -1129,7 +1129,8 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
     diagnosticArrayMessage.status.clear();
 
     // diagnostics message
-    diagnosticStatusMessage.name = "platform_Base";
+    // base status
+    diagnosticStatusMessage.name = diagnosticNameBase;
     if (youBotConfiguration.hasBase) {
       diagnosticStatusMessage.message = "base is present";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
@@ -1140,7 +1141,8 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
 
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);
 
-    diagnosticStatusMessage.name = "platform_Arm";
+    // arm status
+    diagnosticStatusMessage.name = diagnosticNameArm;
     if (youBotConfiguration.hasArms) {
       diagnosticStatusMessage.message = "arm is present";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
