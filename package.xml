@@ -2,10 +2,10 @@
   <name>youbot_driver_ros_interface</name>
   <description>ROS wrapper for the youBot driver</description>
   <author>Sebastian Blumenthal</author>
-  <maintainer email="x@x.de">x</maintainer>
+  <maintainer email="nowak@locomotec.com">Walter Nowak</maintainer>
   <license>LGPL, BSD</license>
-  <version>0.1.0</version>
-  <url>http://ros.org/wiki/youbot_oodl</url>
+  <version>1.0.0</version>
+  <url>http://www.youbot-store.com</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
