@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Running setcap for youbot_wrapper..."
+setcap cap_net_raw+ep /opt/ros/groovy/lib/youbot_common/youbot_wrapper

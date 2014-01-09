@@ -38,7 +38,10 @@ install(DIRECTORY launch/
 )
 
 
-OPTION(USE_SETCAP "Set permissions to access ethernet interface without sudo" ON)
+## run sudo command to enable direct network access
+## disabled here by default because it is set by Debian postinst command
+
+OPTION(USE_SETCAP "Set permissions to access ethernet interface without sudo" OFF)
 
 SET(SUDO_COMMAND gksudo)
 IF($ENV{USE_NORMAL_SUDO})
@@ -47,19 +50,19 @@ ENDIF($ENV{USE_NORMAL_SUDO})
 
 IF(USE_SETCAP)
 add_custom_command(TARGET youbot_driver_ros_interface POST_BUILD
-    #COMMAND sudo setcap cap_net_raw+ep youbot_oodl
     COMMAND ${SUDO_COMMAND} setcap cap_net_raw+ep $<TARGET_FILE:youbot_driver_ros_interface>
 )    
 endif(USE_SETCAP)
 
+
 #test programs
 add_executable(youbot_arm_test 
-    examples/youbot_arm_test.cpp 
+    src/examples/youbot_arm_test.cpp 
 )
 target_link_libraries(youbot_arm_test ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
 add_executable(youbot_2nd_arm_test 
-    examples/youbot_2nd_arm_test.cpp 
+	src/examples/youbot_2nd_arm_test.cpp 
 )
 target_link_libraries(youbot_2nd_arm_test ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
@@ -68,6 +71,3 @@ install(TARGETS youbot_driver_ros_interface youbot_arm_test
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-#add_executable(youbot_arm_velocity_test 
-#    examples/youbot_arm_velocity_test.cpp 
-#)
