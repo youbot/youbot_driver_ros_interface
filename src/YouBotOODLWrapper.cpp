@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#include "YouBotOODLWrapper.h"
-#include "joint_state_observer_oodl.h"
+#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
+#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
 
 #include <youbot_trajectory_action_server/joint_trajectory_action.h>
 #include <sstream>
@@ -67,9 +67,9 @@ node(n)
     //n.param("trajectoryVelocityGain", trajectoryVelocityGain, 0.0);
     //n.param("trajectoryPositionGain", trajectoryPositionGain, 5.0);
     gripperCycleCounter = 0;
-    diagnosticNameArms = "platform_Arms";
+    diagnosticNameArm = "platform_Arm";
     diagnosticNameBase = "platform_Base";
-    dashboardMessagePublisher = n.advertise<youbot_driver_ros_interface::PowerBoardState>("/dashboard/platform_state", 1);
+    dashboardMessagePublisher = n.advertise<pr2_msgs::PowerBoardState>("/dashboard/platform_state", 1);
     diagnosticArrayPublisher = n.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 1);
 }
 
@@ -1125,11 +1125,13 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
 
     lastDiagnosticPublishTime = ros::Time::now();
 
+    platformStateMessage.header.stamp = ros::Time::now();
     diagnosticArrayMessage.header.stamp = ros::Time::now();
     diagnosticArrayMessage.status.clear();
 
     // diagnostics message
-    diagnosticStatusMessage.name = "platform_Base";
+    // base status
+    diagnosticStatusMessage.name = diagnosticNameBase;
     if (youBotConfiguration.hasBase) {
       diagnosticStatusMessage.message = "base is present";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
@@ -1137,10 +1139,10 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
       diagnosticStatusMessage.message = "base is not connected or switched off";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
     }
-
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);
 
-    diagnosticStatusMessage.name = "platform_Arm";
+    // arm status
+    diagnosticStatusMessage.name = diagnosticNameArm;
     if (youBotConfiguration.hasArms) {
       diagnosticStatusMessage.message = "arm is present";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
@@ -1148,26 +1150,38 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
       diagnosticStatusMessage.message = "arm is not connected or switched off";
       diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
     }
-
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);
 
 
-    // dashboard message
-    platformStateMessage.header.stamp = ros::Time::now();
+    // EtherCAT status
+    diagnosticStatusMessage.name = "platform_EtherCAT";
+    if (youbot::EthercatMaster::getInstance().isEtherCATConnectionEstablished()) {
+      diagnosticStatusMessage.message = "EtherCAT connnection is established";
+      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
+      platformStateMessage.run_stop = false;
+    }
+    else {
+      diagnosticStatusMessage.message = "EtherCAT connnection lost";
+      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+      platformStateMessage.run_stop = true;
+    }
+    diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);        
 
+
+    // dashboard message
     if (youBotConfiguration.hasBase && areBaseMotorsSwitchedOn)
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_ENABLED;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_ENABLED;
     else if (youBotConfiguration.hasBase && !areBaseMotorsSwitchedOn)
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_STANDBY;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_STANDBY;
     else
-      platformStateMessage.circuit_state[0] = youbot_driver_ros_interface::PowerBoardState::STATE_DISABLED;
+      platformStateMessage.circuit_state[0] = pr2_msgs::PowerBoardState::STATE_DISABLED;
 
     if (youBotConfiguration.hasArms && areArmMotorsSwitchedOn)
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_ENABLED;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_ENABLED;
     else if (youBotConfiguration.hasArms && !areArmMotorsSwitchedOn)
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_STANDBY;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_STANDBY;
     else
-      platformStateMessage.circuit_state[1] = youbot_driver_ros_interface::PowerBoardState::STATE_DISABLED;
+      platformStateMessage.circuit_state[1] = pr2_msgs::PowerBoardState::STATE_DISABLED;
 
 
     // publish established messages
