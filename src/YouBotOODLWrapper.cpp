@@ -85,7 +85,6 @@ void YouBotOODLWrapper::initializeBase(std::string baseName)
 
     try
     {
-        ROS_INFO("Configuration file path: %s", youBotConfiguration.configurationFilePath.c_str());
         youBotConfiguration.baseConfiguration.youBotBase = new youbot::YouBotBase(baseName, youBotConfiguration.configurationFilePath);
         youBotConfiguration.baseConfiguration.youBotBase->doJointCommutation();
     }
@@ -126,7 +125,6 @@ void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGr
 
     try
     {
-        ROS_INFO("Configuration file path: %s", youBotConfiguration.configurationFilePath.c_str());   
         YouBotArmConfiguration tmpArmConfig;
         youBotConfiguration.youBotArmConfigurations.push_back(tmpArmConfig);
         armIndex = static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()) - 1;
