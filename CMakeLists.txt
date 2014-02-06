@@ -64,8 +64,6 @@ add_executable(youbot_2nd_arm_test
 )
 target_link_libraries(youbot_2nd_arm_test ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
-message("xxx lib : " ${catkin_LIBRARIES})
-
 install(TARGETS youbot_driver_ros_interface youbot_arm_test
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
