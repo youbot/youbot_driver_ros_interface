@@ -2,12 +2,11 @@ cmake_minimum_required(VERSION 2.8.3)
 project(youbot_driver_ros_interface)
 
 
-find_package(catkin REQUIRED COMPONENTS message_generation std_msgs roscpp actionlib tf control_msgs brics_actuator pr2_msgs)
+find_package(catkin REQUIRED COMPONENTS youbot_driver roscpp rosconsole actionlib tf control_msgs brics_actuator pr2_msgs diagnostic_msgs geometry_msgs nav_msgs pr2_msgs std_msgs std_srvs trajectory_msgs)
 find_package(Boost REQUIRED COMPONENTS thread date_time filesystem system)
-find_package(youbot_driver REQUIRED)
 
 catkin_package(
-	CATKIN_DEPENDS pr2_msgs message_runtime brics_actuator
+	CATKIN_DEPENDS youbot_driver rosconsole roscpp pr2_msgs brics_actuator tf control_msgs diagnostic_msgs geometry_msgs nav_msgs pr2_msgs std_msgs std_srvs trajectory_msgs
 )
 
 ## preprocessor definitions
@@ -18,7 +17,6 @@ INCLUDE_DIRECTORIES(
 	include
 	${catkin_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIR}
-	${youbot_driver_INCLUDE_DIRS}
 )	
 
 
@@ -29,7 +27,7 @@ add_executable(youbot_driver_ros_interface
     src/joint_state_observer_oodl.cpp
 )
 
-target_link_libraries(youbot_driver_ros_interface ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
+target_link_libraries(youbot_driver_ros_interface ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_dependencies(youbot_driver_ros_interface ${catkin_EXPORTED_TARGETS})
 
@@ -66,8 +64,13 @@ add_executable(youbot_2nd_arm_test
 )
 target_link_libraries(youbot_2nd_arm_test ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
-
 install(TARGETS youbot_driver_ros_interface youbot_arm_test
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# enable python teleop script
+catkin_python_setup()
+
+install(PROGRAMS src/examples/youbot_keyboard_teleop.py
+         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

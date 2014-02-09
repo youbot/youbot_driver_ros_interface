@@ -76,6 +76,15 @@ int main(int argc, char **argv)
 
     ros::ServiceServer reconnectService = n.advertiseService("reconnect", &youBot::YouBotOODLWrapper::reconnectCallback, &youBot);
 
+	ROS_INFO("Configuration file path: %s", youBot.youBotConfiguration.configurationFilePath.c_str());
+	try {
+		youbot::EthercatMaster::getInstance("youbot-ethercat.cfg", youBot.youBotConfiguration.configurationFilePath);
+	} catch (std::exception& e)	{
+		ROS_ERROR("No EtherCAT connection:");
+		ROS_FATAL("%s", e.what());
+		return 0;
+	}
+
     ROS_ASSERT((youBotHasBase == true) || (youBotHasArms == true)); // At least one should be true, otherwise nothing to be started.
     if (youBotHasBase == true)
     {
