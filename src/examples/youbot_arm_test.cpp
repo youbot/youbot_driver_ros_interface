@@ -105,27 +105,28 @@ int main(int argc, char **argv) {
 
 		};
 
-		cout << "Please type in value for a left jaw of the gripper " << endl;
-		cin >> readValue;
-		gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
-		gripperJointPositions[0].value = readValue;
-		gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
+//		cout << "Please type in value for a left jaw of the gripper " << endl;
+//		cin >> readValue;
+//		gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
+//		gripperJointPositions[0].value = readValue;
+//		gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
 
-		cout << "Please type in value for a right jaw of the gripper " << endl;
-		cin >> readValue;
-		gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
-		gripperJointPositions[1].value = readValue;
-		gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
+//		cout << "Please type in value for a right jaw of the gripper " << endl;
+//		cin >> readValue;
+//		gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
+//		gripperJointPositions[1].value = readValue;
+//		gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
 
 		cout << "sending command ..." << endl;
 
 		command.positions = armJointPositions;
 		armPositionsPublisher.publish(command);
 
-		command.positions = gripperJointPositions;
-        gripperPositionPublisher.publish(command);
+//		command.positions = gripperJointPositions;
+//		gripperPositionPublisher.publish(command);
 
 		cout << "--------------------" << endl;
+		ros::spinOnce();
 		rate.sleep();
 
 	}
