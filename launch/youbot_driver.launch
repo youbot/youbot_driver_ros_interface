@@ -43,6 +43,12 @@ or enable the USE_SETCAP flag in the cmake file and recompile again.
 		<remap from="base/joint_states" to="/joint_states"/> 
 		<remap from="arm_1/joint_states" to="/joint_states"/> 
 	</node>
-		  
+
+	<!-- upoad URDF model to the parameter server -->  
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find youbot_description)/robots/youbot.urdf.xacro'"/>
+
+	<!-- start robot_state_publisher -->
+	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen"/>
+  
 </launch>
 
