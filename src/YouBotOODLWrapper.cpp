@@ -115,7 +115,7 @@ void YouBotOODLWrapper::initializeBase(std::string baseName)
     areBaseMotorsSwitchedOn = true;
 }
 
-void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGripper)
+void YouBotOODLWrapper::initializeArm(std::string armName)
 {
     int armIndex;
     youbot::JointName jointNameParameter;
@@ -150,10 +150,23 @@ void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGr
 
         youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->doJointCommutation();
         youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->calibrateManipulator();
-        if (enableStandardGripper)
+    }
+    catch (std::exception& e)
+    {
+        youBotConfiguration.youBotArmConfigurations.pop_back();
+        std::string errorMessage = e.what();
+        ROS_FATAL("%s", errorMessage.c_str());
+        ROS_ERROR("Arm \"%s\" could not be initialized.", armName.c_str());
+        ROS_INFO("System has %i initialized arm(s).", static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
+        return;
+    }
+
+    if(youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->hasGripper())
+    {
+        try
         {
-        	youbot::GripperBarName barName;
-        	std::string gripperBarName;
+            youbot::GripperBarName barName;
+            std::string gripperBarName;
 
             youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1().getConfigurationParameter(barName);
             barName.getParameter(gripperBarName);
@@ -167,16 +180,16 @@ void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGr
 
             youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->calibrateGripper();
         }
+        catch (std::exception& e)
+        {
+            ROS_ERROR_STREAM("Gripper on arm \"" << armName << "\" could not be initialized: " << e.what());
+        }
     }
-    catch (std::exception& e)
+    else
     {
-        youBotConfiguration.youBotArmConfigurations.pop_back();
-        std::string errorMessage = e.what();
-        ROS_FATAL("%s", errorMessage.c_str());
-        ROS_ERROR("Arm \"%s\" could not be initialized.", armName.c_str());
-        ROS_INFO("System has %i initialized arm(s).", static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
-        return;
+        ROS_ERROR_STREAM("Gripper on arm \"" << armName << "\" not found or disabled in the config file!");
     }
+
 
 
     /* setup input/output communication */
@@ -201,15 +214,10 @@ void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGr
     topicName << youBotConfiguration.youBotArmConfigurations[armIndex].commandTopicName << "joint_states";
     youBotConfiguration.youBotArmConfigurations[armIndex].armJointStatePublisher = node.advertise<sensor_msgs::JointState > (topicName.str(), 1); //TODO different names or one topic?
 
-    if (enableStandardGripper)
-    {
-        topicName.str("");
-        topicName << youBotConfiguration.youBotArmConfigurations[armIndex].commandTopicName << "gripper_controller/position_command";
-        youBotConfiguration.youBotArmConfigurations[armIndex].gripperPositionCommandSubscriber = node.subscribe<brics_actuator::JointPositions > (topicName.str(), 1000, boost::bind(&YouBotOODLWrapper::gripperPositionsCommandCallback, this, _1, armIndex));
-        youBotConfiguration.youBotArmConfigurations[armIndex].lastGripperCommand = 0.0; //This is true if the gripper is calibrated.
-    }
-
-
+    topicName.str("");
+    topicName << youBotConfiguration.youBotArmConfigurations[armIndex].commandTopicName << "gripper_controller/position_command";
+    youBotConfiguration.youBotArmConfigurations[armIndex].gripperPositionCommandSubscriber = node.subscribe<brics_actuator::JointPositions > (topicName.str(), 1000, boost::bind(&YouBotOODLWrapper::gripperPositionsCommandCallback, this, _1, armIndex));
+    youBotConfiguration.youBotArmConfigurations[armIndex].lastGripperCommand = 0.0; //This is true if the gripper is calibrated.
 
     /* setup services*/
     serviceName.str("");
@@ -856,32 +864,33 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
              * themselves. Of course if the finger are screwed to the most inner position (i.e. the can close completely),
              * than it is correct.
              */
-            try 
-            {
-                youbot::YouBotGripperBar& gripperBar1 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1();
-                youbot::YouBotGripperBar& gripperBar2 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar2();
+            if(youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->hasGripper()) {
+                try {
+                    youbot::YouBotGripperBar& gripperBar1 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1();
+                    youbot::YouBotGripperBar& gripperBar2 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar2();
 
-                if  (gripperCycleCounter == 0) { //workaround: avoid congestion of mailbox message by querying only every ith iteration
-            	    gripperCycleCounter = youBotDriverCycleFrequencyInHz/5; //approx. 5Hz here
-            	    gripperBar1.getData(gripperBar1Position);
-            	    gripperBar2.getData(gripperBar2Position);
+                    if  (gripperCycleCounter == 0) { //workaround: avoid congestion of mailbox message by querying only every ith iteration
+                        gripperCycleCounter = youBotDriverCycleFrequencyInHz/5; //approx. 5Hz here
+                        gripperBar1.getData(gripperBar1Position);
+                        gripperBar2.getData(gripperBar2Position);
+                    }
+                    gripperCycleCounter--;
+
+                    armJointStateMessages[armIndex].name[youBotArmDoF + 0] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::LEFT_FINGER_INDEX];
+                    double leftGipperFingerPosition = gripperBar1Position.barPosition.value();
+                    armJointStateMessages[armIndex].position[youBotArmDoF + 0] = leftGipperFingerPosition;
+
+                    double rightGipperFingerPosition = gripperBar2Position.barPosition.value();
+                    armJointStateMessages[armIndex].name[youBotArmDoF + 1] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::RIGHT_FINGER_INDEX];
+                    armJointStateMessages[armIndex].position[youBotArmDoF + 1] = rightGipperFingerPosition;
                 }
-                gripperCycleCounter--;
-
-                armJointStateMessages[armIndex].name[youBotArmDoF + 0] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::LEFT_FINGER_INDEX];
-                double leftGipperFingerPosition = gripperBar1Position.barPosition.value();
-                armJointStateMessages[armIndex].position[youBotArmDoF + 0] = leftGipperFingerPosition;
-
-                double rightGipperFingerPosition = gripperBar2Position.barPosition.value();
-                armJointStateMessages[armIndex].name[youBotArmDoF + 1] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::RIGHT_FINGER_INDEX];
-                armJointStateMessages[armIndex].position[youBotArmDoF + 1] = rightGipperFingerPosition;
+                catch (std::exception& e) {
+                    std::string errorMessage = e.what();
+                    ROS_WARN("Cannot read gripper values: %s", errorMessage.c_str());
+                }
             }
-            catch (std::exception& e)
-            {
-                std::string errorMessage = e.what();
-                ROS_WARN("Cannot read gripper values: %s", errorMessage.c_str());
-            }
-/*
+
+			/*
             if (trajectoryActionServerEnable)
             {
                 // updating joint states in trajectory action 
