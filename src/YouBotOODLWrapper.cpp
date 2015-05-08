@@ -63,14 +63,16 @@ node(n)
     armJointStateMessages.clear();
 
     n.param("youBotDriverCycleFrequencyInHz", youBotDriverCycleFrequencyInHz, 50.0);
+    n.param("youBotDriverGripperReadingsCycleFrequencyInHz", youBotDriverGripperReadingsCycleFrequencyInHz, 5.0);
     //n.param("trajectoryActionServerEnable", trajectoryActionServerEnable, false);
     //n.param("trajectoryVelocityGain", trajectoryVelocityGain, 0.0);
     //n.param("trajectoryPositionGain", trajectoryPositionGain, 5.0);
-    gripperCycleCounter = 0;
     diagnosticNameArm = "platform_Arm";
     diagnosticNameBase = "platform_Base";
     dashboardMessagePublisher = n.advertise<pr2_msgs::PowerBoardState>("/dashboard/platform_state", 1);
     diagnosticArrayPublisher = n.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 1);
+
+    last_gripper_readings_time_ = ros::Time::now();
 }
 
 YouBotOODLWrapper::~YouBotOODLWrapper()
@@ -864,17 +866,15 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
              * themselves. Of course if the finger are screwed to the most inner position (i.e. the can close completely),
              * than it is correct.
              */
-            if(youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->hasGripper()) {
+
+            if(youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->hasGripper() &&
+                        (ros::Duration(ros::Time::now() - last_gripper_readings_time_).toSec() > (1 / youBotDriverGripperReadingsCycleFrequencyInHz))) {
                 try {
                     youbot::YouBotGripperBar& gripperBar1 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1();
                     youbot::YouBotGripperBar& gripperBar2 = youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar2();
 
-                    if  (gripperCycleCounter == 0) { //workaround: avoid congestion of mailbox message by querying only every ith iteration
-                        gripperCycleCounter = youBotDriverCycleFrequencyInHz/5; //approx. 5Hz here
-                        gripperBar1.getData(gripperBar1Position);
-                        gripperBar2.getData(gripperBar2Position);
-                    }
-                    gripperCycleCounter--;
+                    gripperBar1.getData(gripperBar1Position);
+                    gripperBar2.getData(gripperBar2Position);
 
                     armJointStateMessages[armIndex].name[youBotArmDoF + 0] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::LEFT_FINGER_INDEX];
                     double leftGipperFingerPosition = gripperBar1Position.barPosition.value();
@@ -883,6 +883,8 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
                     double rightGipperFingerPosition = gripperBar2Position.barPosition.value();
                     armJointStateMessages[armIndex].name[youBotArmDoF + 1] = youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::RIGHT_FINGER_INDEX];
                     armJointStateMessages[armIndex].position[youBotArmDoF + 1] = rightGipperFingerPosition;
+
+                    last_gripper_readings_time_ = ros::Time::now();
                 }
                 catch (std::exception& e) {
                     std::string errorMessage = e.what();
@@ -890,7 +892,7 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
                 }
             }
 
-			/*
+            /*
             if (trajectoryActionServerEnable)
             {
                 // updating joint states in trajectory action 
