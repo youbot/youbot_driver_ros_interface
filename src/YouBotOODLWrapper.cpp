@@ -699,6 +699,7 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
     currentTime = ros::Time::now();
     youbot::JointSensedAngle currentAngle;
     youbot::JointSensedVelocity currentVelocity;
+    youbot::JointSensedTorque currentTorque;
 
     youbot::EthercatMaster::getInstance().AutomaticReceiveOn(false); // ensure that all joint values will be received at the same time
 
@@ -814,6 +815,7 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
             armJointStateMessages[armIndex].name.resize(youBotArmDoF + youBotNumberOfFingers);
             armJointStateMessages[armIndex].position.resize(youBotArmDoF + youBotNumberOfFingers);
             armJointStateMessages[armIndex].velocity.resize(youBotArmDoF + youBotNumberOfFingers);
+            armJointStateMessages[armIndex].effort.resize(youBotArmDoF + youBotNumberOfFingers);
 
             if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm == 0)
             {
@@ -826,10 +828,12 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
             {
                 youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).getData(currentAngle); //youBot joints start with 1 not with 0 -> i + 1 //FIXME might segfault if only 1eout of 2 arms are initialized.
                 youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).getData(currentVelocity);
+                youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).getData(currentTorque);
 
                 armJointStateMessages[armIndex].name[i] = youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]; //TODO no unique names for URDF yet
                 armJointStateMessages[armIndex].position[i] = currentAngle.angle.value();
                 armJointStateMessages[armIndex].velocity[i] = currentVelocity.angularVelocity.value();
+                armJointStateMessages[armIndex].effort[i] = currentTorque.torque.value();
             }
 
             // check if trajectory controller is finished
