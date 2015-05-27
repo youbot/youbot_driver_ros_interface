@@ -821,9 +821,16 @@ void YouBotOODLWrapper::computeOODLSensorReadings()
 
             /* fill joint state message */
             armJointStateMessages[armIndex].header.stamp = currentTime;
-            armJointStateMessages[armIndex].name.resize(youBotArmDoF + youBotNumberOfFingers);
-            armJointStateMessages[armIndex].position.resize(youBotArmDoF + youBotNumberOfFingers);
-            armJointStateMessages[armIndex].velocity.resize(youBotArmDoF + youBotNumberOfFingers);
+
+            double numberOfArmjoints = 0;
+            if(youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->hasGripper())
+                numberOfArmjoints = youBotArmDoF + youBotNumberOfFingers;
+            else
+                numberOfArmjoints = youBotArmDoF;
+
+            armJointStateMessages[armIndex].name.resize(numberOfArmjoints);
+            armJointStateMessages[armIndex].position.resize(numberOfArmjoints);
+            armJointStateMessages[armIndex].velocity.resize(numberOfArmjoints);
 
             if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm == 0)
             {
