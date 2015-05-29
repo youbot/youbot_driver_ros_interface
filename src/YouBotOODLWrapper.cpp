@@ -184,12 +184,12 @@ void YouBotOODLWrapper::initializeArm(std::string armName)
         }
         catch (std::exception& e)
         {
-            ROS_ERROR_STREAM("Gripper on arm \"" << armName << "\" could not be initialized: " << e.what());
+            ROS_WARN_STREAM("Gripper on arm \"" << armName << "\" could not be initialized: " << e.what());
         }
     }
     else
     {
-        ROS_ERROR_STREAM("Gripper on arm \"" << armName << "\" not found or disabled in the config file!");
+        ROS_WARN_STREAM("Gripper on arm \"" << armName << "\" not found or disabled in the config file!");
     }
 
 
