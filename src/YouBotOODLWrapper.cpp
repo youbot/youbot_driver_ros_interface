@@ -402,30 +402,38 @@ void YouBotOODLWrapper::armPositionsCommandCallback(const brics_actuator::JointP
 
         /* loop over all youBot arm joints and check if something is in the received message that requires action */
         ROS_ASSERT(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames.size() == static_cast<unsigned int> (youBotArmDoF));
-        youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
-        for (int i = 0; i < youBotArmDoF; ++i)
-        {
 
-            /* check what is in map */
-            map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
-            if (jointIterator != jointNameToValueMapping.end())
+        try
+        {
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
+
+            for (int i = 0; i < youBotArmDoF; ++i)
             {
 
-                /* set the desired joint value */
-                ROS_DEBUG("Trying to set joint %s to new position value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
-                desiredAngle.angle = jointIterator->second * radian;
-                try
+                /* check what is in map */
+                map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
+                if (jointIterator != jointNameToValueMapping.end())
                 {
-                    youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngle); //youBot joints start with 1 not with 0 -> i + 1
-                }
-                catch (std::exception& e)
-                {
-                    std::string errorMessage = e.what();
-                    ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+
+                    /* set the desired joint value */
+                    ROS_DEBUG("Trying to set joint %s to new position value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
+                    desiredAngle.angle = jointIterator->second * radian;
+                    try
+                    {
+                        youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngle); //youBot joints start with 1 not with 0 -> i + 1
+                    }
+                    catch (std::exception& e)
+                    {
+                        std::string errorMessage = e.what();
+                        ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+                    }
                 }
             }
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+        } catch(std::exception &e)
+        {
+            return;
         }
-        youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
     }
     else
     {
@@ -469,31 +477,38 @@ void YouBotOODLWrapper::armVelocitiesCommandCallback(const brics_actuator::Joint
 
         /* loop over all youBot arm joints and check if something is in the received message that requires action */
         ROS_ASSERT(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames.size() == static_cast<unsigned int> (youBotArmDoF));
-        youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
-        for (int i = 0; i < youBotArmDoF; ++i)
-        {
 
-            /* check what is in map */
-            map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
-            if (jointIterator != jointNameToValueMapping.end())
+        try
+        {
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
+            for (int i = 0; i < youBotArmDoF; ++i)
             {
 
-                /* set the desired joint value */
-                ROS_DEBUG("Trying to set joint %s to new velocity value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
-                desiredAngularVelocity.angularVelocity = jointIterator->second * radian_per_second;
-                try
+                /* check what is in map */
+                map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
+                if (jointIterator != jointNameToValueMapping.end())
                 {
-                    youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngularVelocity); //youBot joints start with 1 not with 0 -> i + 1
 
-                }
-                catch (std::exception& e)
-                {
-                    std::string errorMessage = e.what();
-                    ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+                    /* set the desired joint value */
+                    ROS_DEBUG("Trying to set joint %s to new velocity value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
+                    desiredAngularVelocity.angularVelocity = jointIterator->second * radian_per_second;
+                    try
+                    {
+                        youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngularVelocity); //youBot joints start with 1 not with 0 -> i + 1
+
+                    }
+                    catch (std::exception& e)
+                    {
+                        std::string errorMessage = e.what();
+                        ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+                    }
                 }
             }
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+        } catch(std::exception &e)
+        {
+            return;
         }
-        youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
     }
     else
     {
@@ -656,37 +671,43 @@ void YouBotOODLWrapper::gripperPositionsCommandCallback(const brics_actuator::Jo
 			}
 		}
 
-		youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
+		try
+		{
+			youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
 
-		/* check if something is in the received message that requires action for the left finger gripper */
-		gripperIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::LEFT_FINGER_INDEX]);
-		if (gripperIterator != jointNameToValueMapping.end()) {
-			ROS_DEBUG("Trying to set the left gripper finger to new value %f", gripperIterator->second);
+			/* check if something is in the received message that requires action for the left finger gripper */
+			gripperIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::LEFT_FINGER_INDEX]);
+			if (gripperIterator != jointNameToValueMapping.end()) {
+				ROS_DEBUG("Trying to set the left gripper finger to new value %f", gripperIterator->second);
 
-			leftGripperFingerPosition.barPosition = gripperIterator->second * meter;
-			try {
-				youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1().setData(leftGripperFingerPosition);
-			} catch (std::exception& e) {
-				std::string errorMessage = e.what();
-				ROS_WARN("Cannot set the left gripper finger: %s", errorMessage.c_str());
+				leftGripperFingerPosition.barPosition = gripperIterator->second * meter;
+				try {
+					youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar1().setData(leftGripperFingerPosition);
+				} catch (std::exception& e) {
+					std::string errorMessage = e.what();
+					ROS_WARN("Cannot set the left gripper finger: %s", errorMessage.c_str());
+				}
 			}
-		}
 
-		/* check if something is in the received message that requires action for the right finger gripper */
-		gripperIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::RIGHT_FINGER_INDEX]);
-		if (gripperIterator != jointNameToValueMapping.end()) {
-			ROS_DEBUG("Trying to set the right gripper to new value %f", gripperIterator->second);
+			/* check if something is in the received message that requires action for the right finger gripper */
+			gripperIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].gripperFingerNames[YouBotArmConfiguration::RIGHT_FINGER_INDEX]);
+			if (gripperIterator != jointNameToValueMapping.end()) {
+				ROS_DEBUG("Trying to set the right gripper to new value %f", gripperIterator->second);
 
-			rightGripperFingerPosition.barPosition = gripperIterator->second * meter;
-			try {
-				youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar2().setData(rightGripperFingerPosition);
-			} catch (std::exception& e) {
-				std::string errorMessage = e.what();
-				ROS_WARN("Cannot set the right gripper finger: %s", errorMessage.c_str());
+				rightGripperFingerPosition.barPosition = gripperIterator->second * meter;
+				try {
+					youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmGripper().getGripperBar2().setData(rightGripperFingerPosition);
+				} catch (std::exception& e) {
+					std::string errorMessage = e.what();
+					ROS_WARN("Cannot set the right gripper finger: %s", errorMessage.c_str());
+				}
 			}
-		}
 
-		youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+			youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+		} catch(std::exception &e)
+		{
+			return;
+		}
 	} else {
 		ROS_ERROR("Arm%i is not correctly initialized!", armIndex + 1);
 	}
@@ -1153,16 +1174,25 @@ void YouBotOODLWrapper::publishArmAndBaseDiagnostics(double publish_rate_in_secs
 
     // EtherCAT status
     diagnosticStatusMessage.name = "platform_EtherCAT";
-    if (youbot::EthercatMaster::getInstance().isEtherCATConnectionEstablished()) {
-      diagnosticStatusMessage.message = "EtherCAT connnection is established";
-      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
-      platformStateMessage.run_stop = false;
-    }
-    else {
-      diagnosticStatusMessage.message = "EtherCAT connnection lost";
-      diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
-      platformStateMessage.run_stop = true;
-    }
+
+    try
+    {
+        if (youbot::EthercatMaster::getInstance().isEtherCATConnectionEstablished()) {
+          diagnosticStatusMessage.message = "EtherCAT connnection is established";
+          diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::OK;
+          platformStateMessage.run_stop = false;
+        }
+        else {
+          diagnosticStatusMessage.message = "EtherCAT connnection lost";
+          diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+          platformStateMessage.run_stop = true;
+        }
+    } catch(std::exception &e) 
+    {
+        diagnosticStatusMessage.message = "EtherCAT connnection lost";
+        diagnosticStatusMessage.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+        platformStateMessage.run_stop = true;
+    }    
     diagnosticArrayMessage.status.push_back(diagnosticStatusMessage);        
 
 
