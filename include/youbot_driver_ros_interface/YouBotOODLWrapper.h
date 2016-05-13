@@ -150,18 +150,18 @@ public:
     void armVelocitiesCommandCallback(const brics_actuator::JointVelocitiesConstPtr& youbotArmCommand, int armIndex);
 
     /**
-	 * @brief Callback that is executed when an action goal to perform a joint trajectory with the arm comes in.
-	 * @param youbotArmGoal Actionlib goal that contains the trajectory.
-	 * @param armIndex Index that identifies the arm
-	 */
-	void armJointTrajectoryGoalCallback(actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle youbotArmGoal, unsigned int armIndex);
+     * @brief Callback that is executed when an action goal to perform a joint trajectory with the arm comes in.
+     * @param youbotArmGoal Actionlib goal that contains the trajectory.
+     * @param armIndex Index that identifies the arm
+     */
+    void armJointTrajectoryGoalCallback(actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle youbotArmGoal, unsigned int armIndex);
 
-	/**
-	 * @brief Callback that is executed when an action goal of a joint trajectory is canceled.
-	 * @param youbotArmGoal Actionlib goal that contains the trajectory.
-	 * @param armIndex Index that identifies the arm
-	 */
-	void armJointTrajectoryCancelCallback(actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle youbotArmGoal, unsigned int armIndex);
+    /**
+     * @brief Callback that is executed when an action goal of a joint trajectory is canceled.
+     * @param youbotArmGoal Actionlib goal that contains the trajectory.
+     * @param armIndex Index that identifies the arm
+     */
+    void armJointTrajectoryCancelCallback(actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle youbotArmGoal, unsigned int armIndex);
     
     /**
      * @brief Callback that is executed when a position command for the gripper comes in.
@@ -251,14 +251,14 @@ private:
     vector<sensor_msgs::JointState> armJointStateMessages;
 
     /// The joint trajectory goal that is currently active.
-	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle armActiveJointTrajectoryGoal;
+    actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle armActiveJointTrajectoryGoal;
 
-	/// Tell if a goal is currently active.
-	bool armHasActiveJointTrajectoryGoal;
+    /// Tell if a goal is currently active.
+    bool armHasActiveJointTrajectoryGoal;
 
-	youbot::GripperSensedBarPosition gripperBar1Position;
-	youbot::GripperSensedBarPosition gripperBar2Position;
-	int gripperCycleCounter;
+    youbot::GripperSensedBarPosition gripperBar1Position;
+    youbot::GripperSensedBarPosition gripperBar2Position;
+    int gripperCycleCounter;
 
     //void executeActionServer(const control_msgs::FollowJointTrajectoryGoalConstPtr& goal,  int armIndex);
     
