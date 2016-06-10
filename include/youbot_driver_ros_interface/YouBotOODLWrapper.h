@@ -108,7 +108,7 @@ public:
      * @param armName Name of the base. Used to open the configuration file e.g. youbot-manipulator.cfg
      * @param enableStandardGripper If set to true, then the default gripper of the youBot will be initialized.
      */
-    void initializeArm(std::string armName, bool enableStandardGripper = true);
+    void initializeArm(std::string armName);
 
     /**
      * @brief Stops all initialized elements.
@@ -256,9 +256,8 @@ private:
 	/// Tell if a goal is currently active.
 	bool armHasActiveJointTrajectoryGoal;
 
-	youbot::GripperSensedBarPosition gripperBar1Position;
-	youbot::GripperSensedBarPosition gripperBar2Position;
-	int gripperCycleCounter;
+    youbot::GripperSensedBarPosition gripperBar1Position;
+    youbot::GripperSensedBarPosition gripperBar2Position;
 
     //void executeActionServer(const control_msgs::FollowJointTrajectoryGoalConstPtr& goal,  int armIndex);
     
@@ -266,6 +265,7 @@ private:
     //double trajectoryVelocityGain;
     //double trajectoryPositionGain;
     double youBotDriverCycleFrequencyInHz;
+    double youBotDriverGripperReadingsCycleFrequencyInHz;
         
     /// diagnostic msgs
     ros::Time lastDiagnosticPublishTime;
@@ -281,6 +281,8 @@ private:
 
     bool areBaseMotorsSwitchedOn;
     bool areArmMotorsSwitchedOn;
+
+    ros::Time last_gripper_readings_time_;
 };
 
 } // namespace youBot
