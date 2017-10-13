@@ -4,7 +4,7 @@
   <author>Sebastian Blumenthal</author>
   <maintainer email="nowak@locomotec.com">Walter Nowak</maintainer>
   <license>LGPL, BSD</license>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <url>http://www.youbot-store.com</url>
 
   <buildtool_depend>catkin</buildtool_depend>
