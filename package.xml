@@ -39,6 +39,7 @@
   <run_depend>trajectory_msgs</run_depend>
   <run_depend>youbot_driver</run_depend>
   <run_depend>xacro</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
 
 </package>
 
